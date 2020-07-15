@@ -1,10 +1,8 @@
 package com.example.android.clippingexample
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Path
+import android.graphics.*
+import android.os.Build
 import android.util.AttributeSet
 import android.view.View
 
@@ -95,8 +93,49 @@ class ClippedView @JvmOverloads constructor(
         canvas.restore()
     }
     private fun drawDifferenceClippingExample(canvas: Canvas) {
+        canvas.save()
+        canvas.translate(columnTwo,rowOne)
+        canvas.clipRect(
+            2 * rectInset,2 * rectInset,
+            clipRectRight - 2 * rectInset,
+            clipRectBottom - 2 * rectInset
+        )
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+            canvas.clipRect(
+                4 * rectInset,4 * rectInset,
+                clipRectRight - 4 * rectInset,
+                clipRectBottom - 4 * rectInset,
+                Region.Op.DIFFERENCE
+            )
+        else {
+            canvas.clipOutRect(
+                4 * rectInset,4 * rectInset,
+                clipRectRight - 4 * rectInset,
+                clipRectBottom - 4 * rectInset
+            )
+        }
+        drawClippedRectangle(canvas)
+        canvas.restore()
     }
     private fun drawCircularClippingExample(canvas: Canvas) {
+        canvas.save()
+        canvas.translate(columnOne, rowTwo)
+
+        path.rewind()
+        path.addCircle(
+            circleRadius,clipRectBottom - circleRadius,
+            circleRadius,Path.Direction.CCW
+        )
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            canvas.clipPath(path, Region.Op.DIFFERENCE)
+        } else {
+            canvas.clipOutPath(path)
+        }
+        drawClippedRectangle(canvas)
+        canvas.restore()
+
     }
     private fun drawIntersectionClippingExample(canvas: Canvas) {
     }
